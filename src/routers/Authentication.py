@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Cookie
+from fastapi import APIRouter, Cookie, Header
 from fastapi.responses import JSONResponse
 from starlette.requests import Request
 
@@ -42,12 +42,11 @@ async def logout(request: Request):
     response.delete_cookie("access_token")
     return response
 
-@router.post("/loggedIn")
-async def checkLoggedIn(request: Request):
-    data = await request.json()
+@router.get("/getLoggedInUser")
+async def getLoggedInUser(request: Request):
     token = request.cookies.get("access_token")
-    if not token or not data:
-        return False
+    if not token:
+        return ""
 
     decodedToken = decodeJWT(request.cookies.get("access_token").replace("Bearer ", ""))
-    return data["Username"] == decodedToken["Username"]
+    return decodedToken["Username"]
