@@ -1,0 +1,11 @@
+name: EventFinderBackend
+dependencies:
+  - pip==21.2.4
+  - python=3.9
+  - pip:
+      - fastapi==0.68
+      - pydantic==1.9.0
+      - uvicorn==0.15.0
+      - requests
+      - PyJWT
+      - passlib
