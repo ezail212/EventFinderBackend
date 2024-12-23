@@ -1,18 +1,19 @@
-from fastapi import APIRouter, Cookie, Header
+from fastapi import APIRouter
 from fastapi.responses import JSONResponse
+from fastapi.security import HTTPBearer
 from starlette.requests import Request
 
-from src.models.Request import LoggedInData
-from src.models.Request.LoginData import LoginData
+from src.models.Request.CredentialData import CredentialData
 from src.common.AuthUtility import createAccessToken, decodeJWT
-from typing import Union, Optional, Annotated
+from src.common.DatabaseUtility import createUserEntry, checkUserExistsOrNot
 
+security = HTTPBearer()
 router = APIRouter(
     prefix="/api/v1/auth",
-    tags=["Authentication"],
+    tags=["Authentication"]
 )
 
-def getUser(data: LoginData):
+def getUser(data: CredentialData):
     userDB = [{"Username": "superuser", "Password": "string", "Email": "superUser@gmail.com"}]
 
     for user in userDB:
@@ -20,8 +21,8 @@ def getUser(data: LoginData):
             return user
     return None
 @router.post("/login")
-async def getLoginToken(data: LoginData):
-    if not (data.Username and data.Email) or not data.Password:
+async def getLoginToken(data: CredentialData):
+    if (not data.Username and not data.Email) or not data.Password:
         return JSONResponse({"msg": "Invalid Credentials"}, status_code=403)
 
     user = getUser(data)
@@ -30,7 +31,7 @@ async def getLoginToken(data: LoginData):
 
     accessToken = createAccessToken(user)
     if accessToken:
-        response = JSONResponse({}, status_code=200)
+        response = JSONResponse(accessToken, status_code=200)
         response.set_cookie(key="access_token", value=f'Bearer {accessToken}')
         return response
 
@@ -50,3 +51,11 @@ async def getLoggedInUser(request: Request):
 
     decodedToken = decodeJWT(request.cookies.get("access_token").replace("Bearer ", ""))
     return decodedToken["Username"]
+
+@router.post("/signUp")
+async def signUp(loginData: CredentialData):
+    if checkUserExistsOrNot(loginData):
+        return JSONResponse({"msg": "User already exists!"}, status_code=400)
+
+    createUserEntry(loginData)
+    return JSONResponse({"msg": "User successfully signed up"}, status_code=200)

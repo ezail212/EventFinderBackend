@@ -1,8 +1,8 @@
 import uvicorn
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI
 from fastapi.security import OAuth2PasswordBearer
 from routers.Authentication import router as AuthRouter
-from routers.TestApi import router as TestRouter
+from routers.Events import router as TestRouter
 from fastapi.middleware.cors import CORSMiddleware
 
 # Basic FastAPI Setup
