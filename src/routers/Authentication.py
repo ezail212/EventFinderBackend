@@ -17,7 +17,8 @@ def getUser(data: CredentialData):
     userDB = [{"Username": "superuser", "Password": "string", "Email": "superUser@gmail.com"}]
 
     for user in userDB:
-        if data.Username.lower() == user["Username"].lower() or data.Email.lower() == user["Email"].lower():
+        if (data.Username.lower() == user["Username"].lower() or data.Email.lower() == user["Email"].lower()) \
+            and data.Password == user["Password"]:
             return user
     return None
 @router.post("/login")
